@@ -1,0 +1,67 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+{% load custom_filters %}
+
+{% block header %}
+    <header id="header">
+        <div id="branding">
+            {% block branding %}
+                <div id="branding">
+                    <div id="site-name">
+                        <a href="/admin/">{{ app_name }}</a>
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+        {% block usertools %}
+            {{ block.super }}
+        {% endblock %}
+    </header>
+{% endblock %}
+
+{% block nav_sidebar %}
+    {{ block.super }}
+{% endblock %}
+
+{% block content_title %}
+    <h1>{{ account_name }} Balance</h1>
+{% endblock %}
+
+{% block content %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Debit</th>
+                <th>Credit</th>
+                <th>Debit Balance</th>
+                <th>Credit Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.journal_entry.date }}</td>
+                    <td>{{ transaction.journal_entry.description }}</td>
+                    {% if transaction.amount > 0 %}
+                        <td>{{ transaction.amount|addcomma }}</td>
+                        <td></td>
+                    {% else %}
+                        <td></td>
+                        <td>{{ transaction.amount|addcomma }}</td>
+                    {% endif %}
+                    <td>{{ balance.debit_balance|index:forloop.counter0|addcomma }}</td>
+                    <td>{{ balance.credit_balance|index:forloop.counter0|addcomma }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="4" text-align="center">Total</th>
+                <th>{{ total_debit|addcomma }}</th>
+                <th>{{ total_credit|addcomma }}</th>
+            </tr>
+        </tfoot>
+    </table>
+{% endblock %}

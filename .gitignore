@@ -1,0 +1,16 @@
+# Ignore Python bytecode files
+*.pyc
+__pycache__/
+
+# Ignore virtual environment folders and files
+env/
+env
+
+# Ignore log files
+*.log
+
+# Ignore SQLite database files
+*.sqlite3
+
+# Ignore macOS specific files
+.DS_Store

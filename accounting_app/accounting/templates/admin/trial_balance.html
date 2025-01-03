@@ -1,0 +1,57 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+{% load custom_filters %}
+
+{% block header %}
+    <header id="header">
+        <div id="branding">
+            {% block branding %}
+                <div id="branding">
+                    <div id="site-name">
+                        <a href="/admin/">{{ app_name }}</a>
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+        {% block usertools %}
+            {{ block.super }}
+        {% endblock %}
+    </header>
+{% endblock %}
+
+{% block nav_sidebar %}
+    {{ block.super }}
+{% endblock %}
+
+{% block content_title %}
+    <h1>Trial Balance</h1>
+{% endblock %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Account</th>
+                <th>Debit</th>
+                <th>Credit</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in trial_balance %}
+            <tr>
+                <td>{{ row.account__name }}</td>
+                <td>{{ row.debit|addcomma }}</td>
+                <td>{{ row.credit|addcomma }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Total</th>
+                <th>{{ total_debit|addcomma }}</th>
+                <th>{{ total_credit|addcomma }}</th>
+            </tr>
+        </tfoot>
+    </table>
+{% endblock %}

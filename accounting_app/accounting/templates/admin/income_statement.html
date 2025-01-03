@@ -1,0 +1,77 @@
+{% extends "admin/base_site.html" %}
+{% load custom_filters %}
+
+{% block header %}
+    <header id="header">
+        <div id="branding">
+            {% block branding %}
+                <div id="branding">
+                    <div id="site-name">
+                        <a href="/admin/">{{ app_name }}</a>
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+        {% block usertools %}
+            {{ block.super }}
+        {% endblock %}
+    </header>
+{% endblock %}
+
+{% block nav_sidebar %}
+    {{ block.super }}
+{% endblock %}
+
+{% block content_title %}
+    <h1>{{ report_name }}</h1>
+{% endblock %}
+
+{% block content %}
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th colspan="2">Revenue:</th>
+            </tr>
+            {% for account in revenue_accounts %}
+            <tr>
+                <td>{{ account.name }}</td>
+                <td>{{ account.balance|addcomma }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td>Total Revenue</td>
+                <td>{{ total_revenue|addcomma }}</td>
+            </tr>
+            <tr>
+                <td colspan="2">&nbsp;</td> <!-- Empty row -->
+            </tr>
+            <tr>
+                <th colspan="2">Operating Expense:</th>
+            </tr>
+            {% for account in expense_accounts %}
+            <tr>
+                <td>{{ account.name }}</td>
+                <td>{{ account.balance|addcomma }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td>Total Expense</td>
+                <td>{{ total_expense|addcomma }}</td>
+            </tr>
+            <tr>
+                <td colspan="2">&nbsp;</td> <!-- Empty row -->
+            </tr>
+            <tr>
+                <th>Net Income</th>
+                <td>{{ net_income|addcomma }}</td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}
