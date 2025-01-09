@@ -3,12 +3,12 @@ from django.urls import path, reverse
 from django.shortcuts import render
 
 from .models import Account, JournalEntry, Transaction, TaxRate
-from .utils import (get_trial_balance, 
-                    get_account_transactions,
+from .utils import (get_trial_balance,
                     get_account_info,
-                    calc_cumulative_balance,
                     create_custom_app,
                     create_custom_model)
+from .components import (DateRangeForm,
+                         ViewComponent)
 
 
 class ModelAdmin(admin.ModelAdmin):
@@ -72,87 +72,67 @@ class AccountingAdminSite(admin.AdminSite):
         "has_permission": True,
         "is_popup": False,
         "app_name": "Accounting App",
+        "form": DateRangeForm(),
     }
+    view_components = ViewComponent()
+
+    @staticmethod
+    def handle_date_request(request):
+        start_date = None
+        end_date = None
+        if request.method == "POST":
+            start_date = request.POST.get("start_date")
+            end_date = request.POST.get("end_date")
+        
+        return start_date, end_date
 
     def trial_balance_view(self, request):
-        trial_balance = get_trial_balance()
-        context = {
-            "trial_balance": trial_balance["account_balance"],
-            "total_debit": trial_balance["total_debit"],
-            "total_credit": trial_balance["total_credit"],
-            "available_apps": self.get_app_list(request),
-        }
+        start_date, end_date = self.handle_date_request(request)
+        components = self.view_components.get_trial_balance(start_date, end_date)
+
+        context = components.update({"available_apps": self.get_app_list(request)})
         context.update(self.site_context)
+
         return render(request, "admin/trial_balance.html", context)
 
     def account_balance_view(self, request, account_name):
-        default_context = {
+        start_date, end_date = self.handle_date_request(request)
+        components = self.view_components.get_account_balance(account_name, start_date, end_date)
+
+        context = {
             "account_name": account_name,
             "available_apps": self.get_app_list(request),
         }
-
-        account_transactions = get_account_transactions(account_name)
-        if len(account_transactions) == 0:
-            default_context.update(self.site_context)
-            return render(request, "admin/account_balance.html", default_context)
-
-        account_balance = calc_cumulative_balance(account_transactions)
-        context = {
-            "transactions": account_transactions,
-            "balance": account_balance,
-            "total_debit": (account_balance["debit_balance"][-1] 
-                            if account_balance["debit_balance"][0] != "" 
-                            else ""),
-            "total_credit": (account_balance["credit_balance"][-1]  
-                             if account_balance["credit_balance"][0] != ""  
-                             else ""),
-        }
         context.update(self.site_context)
-        context.update(default_context)
+        context.update(components)
 
         return render(request, "admin/account_balance.html", context)
 
     def report_view(self, request, report_name):
-        default_context = {
+        context = {
             "report_name": report_name,
             "available_apps": self.get_app_list(request),
         }
-        view_context = {}
         urls_dict = {
             "Income Statement": "admin/income_statement.html",
             "Retained Earnings Statement": "admin/retained_earnings_statement.html",
             "Balance Sheet": "admin/balance_sheet.html",
         }
-        if report_name == "Income Statement":
-            revenue_accounts = get_account_info("type", account_type="Revenue")
-            expense_accounts = get_account_info("type", account_type="Expense")
-            
-            total_revenue = 0
-            total_expense = 0
-            for i in range(len(revenue_accounts)):
-                rev_account_tx = get_account_transactions(revenue_accounts[i].name)
-                exp_account_tx = get_account_transactions(expense_accounts[i].name)
-                total_revenue += sum([tx.amount for tx in rev_account_tx])
-                total_expense += sum([tx.amount for tx in exp_account_tx])
-
-            net_income = total_revenue - total_expense
-
-            view_context = {
-                "revenue_accounts": revenue_accounts,
-                "expense_accounts": expense_accounts,
-                "total_revenue": total_revenue,
-                "total_expense": total_expense,
-                "net_income": net_income,
-            }
-        elif report_name == "Retained Earnings Statement":
-            pass
-        elif report_name == "Balance Sheet":
-            pass
-
-        view_context.update(self.site_context)
-        view_context.update(default_context)
         
-        return render(request, urls_dict.get(report_name, "admin/index.html"), view_context)
+        start_date, end_date = self.handle_date_request(request)
+        if report_name == "Income Statement":
+            view_components = self.view_components.get_income_statement(start_date, end_date)
+        elif report_name == "Retained Earnings Statement":
+            view_components = self.view_components.get_retained_earnings_statement(start_date, end_date)
+        elif report_name == "Balance Sheet":
+            view_components = self.view_components.get_balance_sheet(start_date, end_date)
+        else:
+            view_components = {}
+        
+        context.update(view_components)
+        context.update(self.site_context)
+        
+        return render(request, urls_dict.get(report_name, "admin/index.html"), context)
 
     def get_urls(self):
         urls = super().get_urls()

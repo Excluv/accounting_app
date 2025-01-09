@@ -1,0 +1,78 @@
+{% extends "admin/base_site.html" %}
+{% load custom_filters %}
+
+{% block header %}
+    <header id="header">
+        <div id="branding">
+            {% block branding %}
+                <div id="branding">
+                    <div id="site-name">
+                        <a href="/admin/">{{ app_name }}</a>
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+        {% block usertools %}
+            {{ block.super }}
+        {% endblock %}
+    </header>
+{% endblock %}
+
+{% block nav_sidebar %}
+    {{ block.super }}
+{% endblock %}
+
+{% block content_title %}
+    <h1>{{ report_name }}</h1>
+{% endblock %}
+
+{% block content %}
+    <!-- Date selection -->
+    <form method="post" action="{% url 'trial_balance' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <br>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th colspan="3">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Beginning Retained Earnings</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>{{ beginning_retained_earnings|addcomma }}</td>
+            </tr>
+            <tr>
+                <td>Net Income</td>
+                <td>{{ net_income|addcomma }}</td>
+                <td>&nbsp;</td> 
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>Less: Cash Dividends</td>
+                <td>{{ cash_dividends|addcomma }}</td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td>Increased Retained Earnings</td>
+                <td>&nbsp;</td>
+                <td>{{ increased_retained_earnings|addcomma }}</td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <th>Ending Retained Earnings</th>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <th>{{ ending_retained_earnings|addcomma }}</th>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}

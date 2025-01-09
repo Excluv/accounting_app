@@ -29,6 +29,15 @@
 
 {% block content %}
     <h1>{{ title }}</h1>
+
+    <form method="post" action="{% url 'trial_balance' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    
+    <br>
+
     <table class="table">
         <thead>
             <tr>

@@ -2,7 +2,7 @@ from django.db.models import Sum, Q, QuerySet
 
 from .models import Transaction, Account
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 import numpy as np
 
 
@@ -91,3 +91,44 @@ def create_custom_model(label: str, url: str, perms: Optional[dict]=None) -> dic
         "perms": perms if perms else {"add": False, "change": False, "delete": False, "view": False}
     }
     return custom_model
+
+
+def calc_account_balance(account_name: Union[str, list]) -> float:
+    if isinstance(account_name, str):
+        tx = get_account_transactions(account_name)
+        account_balance = calc_tx_total(tx)
+    else:
+        tx = [get_account_transactions(account) for account in account_name]
+        account_balance = sum([calc_tx_total(t) for t in tx])
+
+    return account_balance
+
+
+def calc_tx_total(transactions: QuerySet) -> float:
+    total = sum([float(transaction.amount) for transaction in transactions])
+    return total
+
+
+def calc_total_revenue_expense() -> float:
+    revenue_accounts = get_account_info("type", account_type="Revenue")
+    expense_accounts = get_account_info("type", account_type="Expense")
+
+    total_revenue = 0
+    total_expense = 0
+    for i in range(len(revenue_accounts)):
+        rev_account_tx = get_account_transactions(revenue_accounts[i].name)
+        exp_account_tx = get_account_transactions(expense_accounts[i].name)
+        total_revenue += calc_tx_total(rev_account_tx)
+        total_expense += calc_tx_total(exp_account_tx)
+
+    return total_revenue, total_expense
+
+
+def calc_net_income(total_revenue: float=None, total_expense: float=None) -> float:
+    if total_revenue and total_expense:
+        net_income = total_revenue - total_expense
+    else:
+        total_revenue, total_expense = calc_total_revenue_expense()
+        net_income = total_revenue - total_expense
+
+    return net_income

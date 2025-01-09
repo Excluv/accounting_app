@@ -16,6 +16,7 @@ class Account(ChangeLog):
         ("Asset", "Asset"),
         ("Liability", "Liability"),
         ("Equity", "Equity"),
+        ("Contra Equity", "Contra Equity"),
         ("Revenue", "Revenue"),
         ("Expense", "Expense"),
     ]
@@ -24,7 +25,7 @@ class Account(ChangeLog):
         ("Credit", "Credit"),
     ]
     name = models.CharField(max_length=255)
-    account_type = models.CharField(max_length=10, choices=ACCOUNT_TYPES)
+    account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPES)
     normal_balance = models.CharField(max_length=10, choices=NORMAL_BALANCE, blank=True)
     reference_code = models.IntegerField()
 
