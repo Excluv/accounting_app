@@ -2,35 +2,24 @@ from django.db.models import Sum, Q, QuerySet
 
 from .models import Transaction, Account
 
-from typing import Dict, Optional, Union
+from typing import Optional, Union
 import numpy as np
 
 
-def get_trial_balance() -> Dict[str, QuerySet]:
-    account_balance = (
-        Transaction.objects
-        .values("account__name")
-        .annotate(
-            debit=Sum("amount", filter=Q(amount__gt=0)),
-            credit=Sum("amount", filter=Q(amount__lt=0))
-        )
-        .order_by("account__name")
-    )
-    trial_balance = {
-        "account_balance": account_balance,
-        "total_debit": sum(row["debit"] or 0 for row in account_balance),
-        "total_credit": sum(abs(row["credit"] or 0) for row in account_balance),
-    }
-    return trial_balance
-
-
-def get_account_transactions(account_name: str) -> QuerySet:
+def get_account_transactions(account_name: str, 
+                             start_date: Optional[str]=None, 
+                             end_date: Optional[str]=None) -> QuerySet:
     transactions = Transaction.objects.filter(account__name=account_name)
+    if start_date and end_date:
+        transactions = transactions.filter(journal_entry__date__range=(start_date, end_date))
+
     return transactions
 
 
-def get_account_balance(account_name: str) -> QuerySet:
-    transactions = get_account_transactions(account_name)
+def get_account_cumulative_balance(account_name: str,
+                                   start_date: Optional[str]=None, 
+                                   end_date: Optional[str]=None) -> QuerySet:
+    transactions = get_account_transactions(account_name, start_date, end_date)
     account_balance = calc_cumulative_balance(transactions)
     return account_balance
 
@@ -93,12 +82,14 @@ def create_custom_model(label: str, url: str, perms: Optional[dict]=None) -> dic
     return custom_model
 
 
-def calc_account_balance(account_name: Union[str, list]) -> float:
+def calc_account_balance(account_name: Union[str, list], 
+                         start_date: Optional[str]=None, 
+                         end_date: Optional[str]=None) -> float:
     if isinstance(account_name, str):
-        tx = get_account_transactions(account_name)
+        tx = get_account_transactions(account_name, start_date, end_date)
         account_balance = calc_tx_total(tx)
     else:
-        tx = [get_account_transactions(account) for account in account_name]
+        tx = [get_account_transactions(account, start_date, end_date) for account in account_name]
         account_balance = sum([calc_tx_total(t) for t in tx])
 
     return account_balance
@@ -109,26 +100,23 @@ def calc_tx_total(transactions: QuerySet) -> float:
     return total
 
 
-def calc_total_revenue_expense() -> float:
+def calc_total_revenue_expense(start_date: Optional[str]=None, 
+                               end_date: Optional[str]=None) -> float:
     revenue_accounts = get_account_info("type", account_type="Revenue")
     expense_accounts = get_account_info("type", account_type="Expense")
-
-    total_revenue = 0
-    total_expense = 0
-    for i in range(len(revenue_accounts)):
-        rev_account_tx = get_account_transactions(revenue_accounts[i].name)
-        exp_account_tx = get_account_transactions(expense_accounts[i].name)
-        total_revenue += calc_tx_total(rev_account_tx)
-        total_expense += calc_tx_total(exp_account_tx)
-
+    total_revenue = sum([calc_account_balance(account.name, start_date, end_date) for account in revenue_accounts])
+    total_expense = sum([calc_account_balance(account.name, start_date, end_date) for account in expense_accounts])
     return total_revenue, total_expense
 
 
-def calc_net_income(total_revenue: float=None, total_expense: float=None) -> float:
+def calc_net_income(total_revenue: float=None, 
+                    total_expense: float=None,
+                    start_date: Optional[str]=None, 
+                    end_date: Optional[str]=None) -> float:
     if total_revenue and total_expense:
-        net_income = total_revenue - total_expense
+        net_income = abs(total_revenue) - abs(total_expense)
     else:
-        total_revenue, total_expense = calc_total_revenue_expense()
-        net_income = total_revenue - total_expense
+        total_revenue, total_expense = calc_total_revenue_expense(start_date, end_date)
+        net_income = abs(total_revenue) - abs(total_expense)
 
     return net_income

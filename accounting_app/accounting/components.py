@@ -19,7 +19,7 @@ class DateRangeForm(forms.Form):
 
 class ViewComponent:
     def get_trial_balance(self, start_date, end_date):
-        account_balance = (
+        accounts = (
             Transaction.objects
             .values("account__name")
             .annotate(
@@ -28,15 +28,18 @@ class ViewComponent:
             )
             .order_by("account__name")
         )
-        trial_balance = {
-            "account_balance": account_balance,
-            "total_debit": sum(row["debit"] or 0 for row in account_balance),
-            "total_credit": sum(abs(row["credit"] or 0) for row in account_balance),
+        if start_date and end_date:
+            accounts = accounts.filter(journal_entry__date__range=(start_date, end_date))
+
+        components = {
+            "accounts": accounts,
+            "total_debit": sum(row["debit"] or 0 for row in accounts),
+            "total_credit": sum(abs(row["credit"] or 0) for row in accounts),
         }
-        return trial_balance
+        return components
 
     def get_account_balance(self, account_name, start_date, end_date):
-        account_transactions = get_account_transactions(account_name)
+        account_transactions = get_account_transactions(account_name, start_date, end_date)
         if len(account_transactions) == 0:
             components = {}
         else:
@@ -55,7 +58,7 @@ class ViewComponent:
         return components
 
     def get_income_statement(self, start_date, end_date):
-        total_revenue, total_expense = calc_total_revenue_expense()
+        total_revenue, total_expense = calc_total_revenue_expense(start_date, end_date)
         net_income = calc_net_income(total_revenue, total_expense)
         components = {
             "revenue_accounts": get_account_info("type", account_type="Revenue"),
@@ -71,7 +74,7 @@ class ViewComponent:
         cash_dividends = calc_tx_total(get_account_transactions("Cash Dividends"))
         increased_retained_earnings = net_income - cash_dividends
 
-        retained_earnings_tx = get_account_transactions("Retained Earnings")
+        retained_earnings_tx = get_account_transactions("Retained Earnings", start_date, end_date)
         beginning_retained_earnings = retained_earnings_tx[0].amount if retained_earnings_tx else 0
         ending_retained_earnings = beginning_retained_earnings + increased_retained_earnings
 
@@ -89,9 +92,9 @@ class ViewComponent:
         liability_accounts = get_account_info("type", account_type="Liability")
         equity_accounts = get_account_info("type", account_type="Equity")
 
-        total_assets = calc_account_balance(asset_accounts)
-        total_liabilities = calc_account_balance(liability_accounts)
-        total_equity = calc_account_balance(equity_accounts)
+        total_assets = calc_account_balance(asset_accounts, start_date, end_date)
+        total_liabilities = calc_account_balance(liability_accounts, start_date, end_date)
+        total_equity = calc_account_balance(equity_accounts, start_date, end_date)
         total_liabilities_and_equity = total_liabilities + total_equity
 
         components = {

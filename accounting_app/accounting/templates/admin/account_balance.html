@@ -29,7 +29,7 @@
 
 {% block content %}
     <!-- Date selection -->
-    <form method="post" action="{% url 'trial_balance' %}">
+    <form method="post" action="{% url 'account_balance' account_name %}">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-primary">Submit</button>
@@ -52,7 +52,7 @@
             {% for transaction in transactions %}
                 <tr>
                     <td>{{ transaction.journal_entry.date }}</td>
-                    <td>{{ transaction.journal_entry.description }}</td>
+                    <td>{{ transaction.description }}</td>
                     {% if transaction.amount > 0 %}
                         <td>{{ transaction.amount|addcomma }}</td>
                         <td></td>

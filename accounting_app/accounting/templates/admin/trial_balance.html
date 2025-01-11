@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block content_title %}
-    <h1>Trial Balance</h1>
+    <h1>Bảng cân đối thử</h1>
 {% endblock %}
 
 {% block content %}
@@ -47,11 +47,11 @@
             </tr>
         </thead>
         <tbody>
-            {% for row in trial_balance %}
+            {% for account in accounts %}
             <tr>
-                <td>{{ row.account__name }}</td>
-                <td>{{ row.debit|addcomma }}</td>
-                <td>{{ row.credit|addcomma }}</td>
+                <td>{{ account.account__name }}</td>
+                <td>{{ account.debit|addcomma }}</td>
+                <td>{{ account.credit|abs_value|addcomma }}</td>
             </tr>
             {% endfor %}
         </tbody>

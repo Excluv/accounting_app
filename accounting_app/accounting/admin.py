@@ -3,8 +3,7 @@ from django.urls import path, reverse
 from django.shortcuts import render
 
 from .models import Account, JournalEntry, Transaction, TaxRate
-from .utils import (get_trial_balance,
-                    get_account_info,
+from .utils import (get_account_info,
                     create_custom_app,
                     create_custom_model)
 from .components import (DateRangeForm,
@@ -34,7 +33,7 @@ class AccountAdmin(ModelAdmin):
     
 
 class JournalEntryAdmin(ModelAdmin):
-    list_display = ("description", "date", "created_by")
+    list_display = ("description", "date", "created_by", "created_at")
     inlines = [TransactionInline]
     list_filter = ("date", )
     search_fields = ("description", )
@@ -55,7 +54,7 @@ class TaxRateAdmin(ModelAdmin):
 
 
 class TransactionAdmin(ModelAdmin):
-    list_display = ("journal_entry", "account", "formatted_amount")
+    list_display = ("journal_entry", "description", "account", "formatted_amount")
     search_fields = ("journal_entry", )
     list_filter = ("account", )
 
@@ -90,7 +89,8 @@ class AccountingAdminSite(admin.AdminSite):
         start_date, end_date = self.handle_date_request(request)
         components = self.view_components.get_trial_balance(start_date, end_date)
 
-        context = components.update({"available_apps": self.get_app_list(request)})
+        context = {"available_apps": self.get_app_list(request)}
+        context.update(components)
         context.update(self.site_context)
 
         return render(request, "admin/trial_balance.html", context)
@@ -153,7 +153,7 @@ class AccountingAdminSite(admin.AdminSite):
         # Create Balance View app 
         balance_view_app = create_custom_app("Balance View", reverse("admin:index"))
 
-        trial_balance_model = create_custom_model("Trial Balance", reverse("trial_balance"))
+        trial_balance_model = create_custom_model("Bảng cân đối thử", reverse("trial_balance"))
         balance_view_app["models"].append(trial_balance_model)
 
         accounts = get_account_info("name", "all")

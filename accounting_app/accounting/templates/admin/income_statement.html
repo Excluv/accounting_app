@@ -28,7 +28,7 @@
 
 {% block content %}
     <!-- Date selection -->
-    <form method="post" action="{% url 'trial_balance' %}">
+    <form method="post" action="{% url 'report_view' report_name %}">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-primary">Submit</button>
@@ -57,7 +57,7 @@
             <tr>
                 <td>Total Revenue</td>
                 <td>&nbsp;</td>
-                <td>{{ total_revenue|addcomma }}</td>
+                <td>{{ total_revenue|abs_value|addcomma }}</td>
             </tr>
             <tr>
                 <th colspan="2">Operating Expense:</th>
