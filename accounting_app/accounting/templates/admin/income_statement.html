@@ -27,49 +27,57 @@
 {% endblock %}
 
 {% block content %}
+    <!-- Date selection -->
+    <form method="post" action="{% url 'report_view' report_name %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <br>
 
     <table class="table">
         <thead>
             <tr>
                 <th>Description</th>
-                <th>Amount</th>
+                <th colspan="3">Amount</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <th colspan="2">Revenue:</th>
+                <th colspan="3">Revenue:</th>
             </tr>
             {% for account in revenue_accounts %}
             <tr>
-                <td>{{ account.name }}</td>
+                <td>&nbsp;&nbsp;&nbsp; {{ account.name }}</td>
+                <td>&nbsp;</td>
                 <td>{{ account.balance|addcomma }}</td>
             </tr>
             {% endfor %}
             <tr>
                 <td>Total Revenue</td>
-                <td>{{ total_revenue|addcomma }}</td>
-            </tr>
-            <tr>
-                <td colspan="2">&nbsp;</td> <!-- Empty row -->
+                <td>&nbsp;</td>
+                <td>{{ total_revenue|abs_value|addcomma }}</td>
             </tr>
             <tr>
                 <th colspan="2">Operating Expense:</th>
+                <td>&nbsp;</td>
             </tr>
             {% for account in expense_accounts %}
             <tr>
-                <td>{{ account.name }}</td>
+                <td>&nbsp;&nbsp;&nbsp; {{ account.name }}</td>
                 <td>{{ account.balance|addcomma }}</td>
+                <td>&nbsp;</td>
             </tr>
             {% endfor %}
             <tr>
                 <td>Total Expense</td>
                 <td>{{ total_expense|addcomma }}</td>
-            </tr>
-            <tr>
-                <td colspan="2">&nbsp;</td> <!-- Empty row -->
+                <td>&nbsp;</td>
             </tr>
             <tr>
                 <th>Net Income</th>
+                <td>&nbsp;</td>
                 <td>{{ net_income|addcomma }}</td>
             </tr>
         </tbody>

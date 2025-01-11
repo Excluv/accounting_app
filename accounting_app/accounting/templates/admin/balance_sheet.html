@@ -1,0 +1,115 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+{% load custom_filters %}
+
+{% block header %}
+    <header id="header">
+        <div id="branding">
+            {% block branding %}
+                <div id="branding">
+                    <div id="site-name">
+                        <a href="/admin/">{{ app_name }}</a>
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+        {% block usertools %}
+            {{ block.super }}
+        {% endblock %}
+    </header>
+{% endblock %}
+
+{% block nav_sidebar %}
+    {{ block.super }}
+{% endblock %}
+
+{% block content_title %}
+    <h1>{{ report_name }}</h1>
+{% endblock %}
+
+{% block content %}
+<!-- Date selection -->
+<form method="post" action="{% url 'report_view' report_name %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+<br>
+
+<div style="display: flex; justify-content: space-between;">
+    <!-- Assets Table -->
+    <table class="table" style="width: 45%;">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th colspan="2">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th colspan="3">Asset</th>
+            </tr>
+            {% for account in asset_accounts %}
+            <tr>
+                <td>&nbsp;&nbsp;&nbsp; {{ account.name }}</td>
+                <td>{{ account.balance|addcomma }}</td>
+                <td>&nbsp;</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <th>Total Assets</th>
+                <td>&nbsp;</td>
+                <th>{{ total_assets|addcomma }}</th>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Liabilities and Equity Table -->
+    <table class="table" style="width: 45%;">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th colspan="2">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th colspan="3">Liability</th>
+            </tr>
+            {% for account in liability_accounts %}
+            <tr>
+                <td>&nbsp;&nbsp;&nbsp; {{ account.name }}</td>
+                <td>{{ account.balance|addcomma }}</td>
+                <td>&nbsp;</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <th>Total Liabilities</th>
+                <td>&nbsp;</td>
+                <th>{{ total_liabilities|addcomma }}</th>
+            </tr>
+            <tr>
+                <th colspan="3">Equity</th>
+            </tr>
+            {% for account in equity_accounts %}
+            <tr>
+                <td>&nbsp;&nbsp;&nbsp; {{ account.name }}</td>
+                <td>{{ account.balance|addcomma }}</td>
+                <td>&nbsp;</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <th>Total Equity</th>
+                <td>&nbsp;</td>
+                <th>{{ total_equity|addcomma }}</th>
+            </tr>
+            <tr>
+                <th>Total Liabilities and Equity</th>
+                <td>&nbsp;</td>
+                <th>{{ total_liabilities_and_equity|addcomma }}</th>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

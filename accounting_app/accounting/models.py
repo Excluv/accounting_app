@@ -16,6 +16,7 @@ class Account(ChangeLog):
         ("Asset", "Asset"),
         ("Liability", "Liability"),
         ("Equity", "Equity"),
+        ("Contra Equity", "Contra Equity"),
         ("Revenue", "Revenue"),
         ("Expense", "Expense"),
     ]
@@ -24,7 +25,7 @@ class Account(ChangeLog):
         ("Credit", "Credit"),
     ]
     name = models.CharField(max_length=255)
-    account_type = models.CharField(max_length=10, choices=ACCOUNT_TYPES)
+    account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPES)
     normal_balance = models.CharField(max_length=10, choices=NORMAL_BALANCE, blank=True)
     reference_code = models.IntegerField()
 
@@ -53,13 +54,19 @@ class JournalEntry(ChangeLog):
 
 class Transaction(ChangeLog):
     journal_entry = models.ForeignKey(JournalEntry, on_delete=models.CASCADE)
+    description = models.CharField(max_length=1000, blank=True)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=12, decimal_places=2)
+
+    def save(self, *args, **kwargs):
+        if not self.description and self.journal_entry:
+            self.description = self.journal_entry.description
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"""
                 ({self.journal_entry.date}) 
-                {self.journal_entry.description}
+                {self.description}
                 {self.account}
                 {self.amount:,.2f}
                 """
