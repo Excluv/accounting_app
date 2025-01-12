@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block content_title %}
-    <h1>{{ account_name }} Balance</h1>
+    <h1>{{ account_name }}</h1>
 {% endblock %}
 
 {% block content %}
@@ -69,7 +69,7 @@
             <tr>
                 <th colspan="4" text-align="center">Total</th>
                 <th>{{ total_debit|addcomma }}</th>
-                <th>{{ total_credit|addcomma }}</th>
+                <th>{{ total_credit|abs_value|addcomma }}</th>
             </tr>
         </tfoot>
     </table>
