@@ -53,7 +53,7 @@ def calc_cumulative_balance(transactions: QuerySet) -> dict:
     if normal_balance == "Debit":
         debit = np.cumsum([float(transaction.amount) for transaction in transactions])
     elif normal_balance == "Credit":
-        credit = np.abs(np.cumsum([float(transaction.amount) for transaction in transactions]))
+        credit = np.cumsum([float(transaction.amount) for transaction in transactions])
     
     cumulative_balance = {
         "debit_balance": debit,
@@ -89,7 +89,7 @@ def calc_account_balance(account_name: Union[str, list],
         tx = get_account_transactions(account_name, start_date, end_date)
         account_balance = calc_tx_total(tx)
     else:
-        tx = [get_account_transactions(account, start_date, end_date) for account in account_name]
+        tx = [get_account_transactions(account.name, start_date, end_date) for account in account_name]
         account_balance = sum([calc_tx_total(t) for t in tx])
 
     return account_balance

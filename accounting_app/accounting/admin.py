@@ -54,9 +54,9 @@ class TaxRateAdmin(ModelAdmin):
 
 
 class TransactionAdmin(ModelAdmin):
-    list_display = ("journal_entry", "description", "account", "formatted_amount")
+    list_display = ("journal_entry__date", "journal_entry", "description", "account", "formatted_amount")
     search_fields = ("journal_entry", )
-    list_filter = ("account", )
+    list_filter = ("journal_entry__date", "account")
 
     def formatted_amount(self, obj):
         return f"{obj.amount:,.2f}"
@@ -164,9 +164,13 @@ class AccountingAdminSite(admin.AdminSite):
         # Create Report View app
         report_view_app = create_custom_app("Report View", reverse("admin:index"))
 
-        reports = ["Income Statement", "Retained Earnings Statement", "Balance Sheet"]
+        reports = [
+            ("Income Statement", "Báo cáo lợi nhuận", reverse("report_view", args=["Income Statement"])), 
+            ("Retained Earnings Statement", "Báo cáo lợi nhuận gộp", reverse("report_view", args=["Retained Earnings Statement"])), 
+            ("Balance Sheet", "Bảng cân đối kế toán", reverse("report_view", args=["Balance Sheet"]))
+        ]
         for report in reports:
-            report_view_model = create_custom_model(report, reverse("report_view", args=[report]))
+            report_view_model = create_custom_model(report[1], report[2])
             report_view_app["models"].append(report_view_model)
 
         app_list = super().get_app_list(request)

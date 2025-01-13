@@ -45,7 +45,7 @@
         </thead>
         <tbody>
             <tr>
-                <th colspan="3">Revenue:</th>
+                <th colspan="3">Doanh thu:</th>
             </tr>
             {% for account in revenue_accounts %}
             <tr>
@@ -55,12 +55,12 @@
             </tr>
             {% endfor %}
             <tr>
-                <td>Total Revenue</td>
+                <td>Tổng doanh thu</td>
                 <td>&nbsp;</td>
                 <td>{{ total_revenue|abs_value|addcomma }}</td>
             </tr>
             <tr>
-                <th colspan="2">Operating Expense:</th>
+                <th colspan="2">Chi phí vận hành:</th>
                 <td>&nbsp;</td>
             </tr>
             {% for account in expense_accounts %}
@@ -71,12 +71,12 @@
             </tr>
             {% endfor %}
             <tr>
-                <td>Total Expense</td>
+                <td>Tổng chi phí</td>
                 <td>{{ total_expense|addcomma }}</td>
                 <td>&nbsp;</td>
             </tr>
             <tr>
-                <th>Net Income</th>
+                <th>Lợi nhuận ròng trước thuế</th>
                 <td>&nbsp;</td>
                 <td>{{ net_income|addcomma }}</td>
             </tr>

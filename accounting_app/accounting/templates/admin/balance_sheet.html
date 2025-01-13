@@ -48,7 +48,7 @@
         </thead>
         <tbody>
             <tr>
-                <th colspan="3">Asset</th>
+                <th colspan="3">Tài sản</th>
             </tr>
             {% for account in asset_accounts %}
             <tr>
@@ -58,7 +58,7 @@
             </tr>
             {% endfor %}
             <tr>
-                <th>Total Assets</th>
+                <th>Tổng cộng tài sản</th>
                 <td>&nbsp;</td>
                 <th>{{ total_assets|addcomma }}</th>
             </tr>
@@ -75,39 +75,39 @@
         </thead>
         <tbody>
             <tr>
-                <th colspan="3">Liability</th>
+                <th colspan="3">Nợ phải trả</th>
             </tr>
             {% for account in liability_accounts %}
             <tr>
                 <td>&nbsp;&nbsp;&nbsp; {{ account.name }}</td>
-                <td>{{ account.balance|addcomma }}</td>
+                <td>{{ account.balance|abs_value|addcomma }}</td>
                 <td>&nbsp;</td>
             </tr>
             {% endfor %}
             <tr>
-                <th>Total Liabilities</th>
+                <th>Tổng cộng nợ phải trả</th>
                 <td>&nbsp;</td>
-                <th>{{ total_liabilities|addcomma }}</th>
+                <th>{{ total_liabilities|abs_value|addcomma }}</th>
             </tr>
             <tr>
-                <th colspan="3">Equity</th>
+                <th colspan="3">Vốn góp</th>
             </tr>
             {% for account in equity_accounts %}
             <tr>
                 <td>&nbsp;&nbsp;&nbsp; {{ account.name }}</td>
-                <td>{{ account.balance|addcomma }}</td>
+                <td>{{ account.balance|abs_value|addcomma }}</td>
                 <td>&nbsp;</td>
             </tr>
             {% endfor %}
             <tr>
-                <th>Total Equity</th>
+                <th>Tổng cộng vốn góp</th>
                 <td>&nbsp;</td>
-                <th>{{ total_equity|addcomma }}</th>
+                <th>{{ total_equity|abs_value|addcomma }}</th>
             </tr>
             <tr>
-                <th>Total Liabilities and Equity</th>
+                <th>Tổng cộng vốn góp và nợ phải trả</th>
                 <td>&nbsp;</td>
-                <th>{{ total_liabilities_and_equity|addcomma }}</th>
+                <th>{{ total_liabilities_and_equity|abs_value|addcomma }}</th>
             </tr>
         </tbody>
     </table>

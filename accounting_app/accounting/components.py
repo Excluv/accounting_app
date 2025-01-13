@@ -71,11 +71,11 @@ class ViewComponent:
 
     def get_retained_earnings_statement(self, start_date, end_date):
         net_income = calc_net_income()
-        cash_dividends = calc_tx_total(get_account_transactions("Cash Dividends"))
+        cash_dividends = calc_tx_total(get_account_transactions("Chi cổ tức bằng tiền mặt"))
         increased_retained_earnings = net_income - cash_dividends
-
-        retained_earnings_tx = get_account_transactions("Retained Earnings", start_date, end_date)
-        beginning_retained_earnings = retained_earnings_tx[0].amount if retained_earnings_tx else 0
+    
+        retained_earnings_tx = get_account_transactions("Lợi nhuận sau thuế chưa phân phối", start_date, end_date)
+        beginning_retained_earnings = abs(calc_tx_total(retained_earnings_tx))
         ending_retained_earnings = beginning_retained_earnings + increased_retained_earnings
 
         components = {
@@ -92,9 +92,18 @@ class ViewComponent:
         liability_accounts = get_account_info("type", account_type="Liability")
         equity_accounts = get_account_info("type", account_type="Equity")
 
-        total_assets = calc_account_balance(asset_accounts, start_date, end_date)
-        total_liabilities = calc_account_balance(liability_accounts, start_date, end_date)
-        total_equity = calc_account_balance(equity_accounts, start_date, end_date)
+        for acc in asset_accounts:
+            acc.balance = calc_account_balance(acc.name, start_date, end_date)
+        
+        for acc in liability_accounts:
+            acc.balance = calc_account_balance(acc.name, start_date, end_date)
+
+        for acc in equity_accounts:
+            acc.balance = calc_account_balance(acc.name, start_date, end_date)
+
+        total_assets = sum([acc.balance for acc in asset_accounts])
+        total_liabilities = sum([acc.balance for acc in liability_accounts])
+        total_equity = sum([acc.balance for acc in equity_accounts])
         total_liabilities_and_equity = total_liabilities + total_equity
 
         components = {
