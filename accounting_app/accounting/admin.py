@@ -54,9 +54,9 @@ class TaxRateAdmin(ModelAdmin):
 
 
 class TransactionAdmin(ModelAdmin):
-    list_display = ("journal_entry", "description", "account", "formatted_amount")
+    list_display = ("journal_entry__date", "journal_entry", "description", "account", "formatted_amount")
     search_fields = ("journal_entry", )
-    list_filter = ("account", )
+    list_filter = ("journal_entry__date", "account")
 
     def formatted_amount(self, obj):
         return f"{obj.amount:,.2f}"

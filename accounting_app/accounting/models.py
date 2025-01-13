@@ -46,7 +46,7 @@ class JournalEntry(ChangeLog):
     date = models.DateField()
 
     def __str__(self):
-        return f"({self.date}) {self.description}"
+        return f"{self.description}"
     
     class Meta:
         verbose_name_plural = "Journal entries"
@@ -64,12 +64,7 @@ class Transaction(ChangeLog):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"""
-                ({self.journal_entry.date}) 
-                {self.description}
-                {self.account}
-                {self.amount:,.2f}
-                """
+        return f"{self.account} {self.description} {self.amount:,.2f}"
 
 
 class TaxRate(ChangeLog):
